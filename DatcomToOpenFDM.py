@@ -55,4 +55,4 @@ table.write('\trecord AircraftState\n\t\tReal p "roll rate [deg/s]";\n\t\tReal q
 table.write('end '+filename+';')
 table.close()
 
-        
+# vim:expandtab:ts=4:sw=4:
