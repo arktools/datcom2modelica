@@ -3,8 +3,8 @@
 # Copyright 2012 Lenna X. Peterson (github.com/lennax)
 # All rights reserved
 # License: GPL v3
-# This program comes with ABSOLUTELY NO WARRANTY. This is free software 
-# and you are welcome to distribute it under certain conditions. 
+# This program comes with ABSOLUTELY NO WARRANTY. This is free software
+# and you are welcome to distribute it under certain conditions.
 # For details, see license.txt
 
 import argparse
