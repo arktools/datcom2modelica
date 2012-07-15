@@ -4,11 +4,11 @@ Created on Jul 14, 2012
 @author: jgoppert
 '''
 
+
 class Convert(object):
     '''
     classdocs
     '''
-
 
     def __init__(self, filename_in, modelica_name):
         '''
@@ -18,7 +18,6 @@ class Convert(object):
         self.modelica_name = modelica_name
         self._convert()
 
-        
     def _convert(self):
         with open(self.filename_in, 'r') as datcom:
             lines = datcom.readlines()
@@ -59,7 +58,7 @@ class Convert(object):
                             break
                         else:
                             data.append(',\n')
-                            
+
         with open(self.modelica_name + '.mo', 'w') as table:
             table.write('package ' + self.modelica_name + '\n')
             for line in data:
@@ -74,5 +73,3 @@ class Convert(object):
             table.write('end ' + self.modelica_name + ';')
 
 # vim:expandtab:ts=4:sw=4:
-
-        
