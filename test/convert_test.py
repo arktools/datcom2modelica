@@ -10,10 +10,10 @@ from datcom2modelica import Convert
 
 class TestConvert(unittest.TestCase):
 
-    infile = 'data/Citation.out'
+    infile = 'test/data/Citation.out'
 
     def test_convert(self):
-        c = Convert(self.infile, "modelica_test")
+        c = Convert(self.infile, "test/data/modelica_test")
 
 
 if __name__ == "__main__":

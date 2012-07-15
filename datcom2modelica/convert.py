@@ -10,18 +10,18 @@ class Convert(object):
     '''
 
 
-    def __init__(self, filename_in,modelica_name):
+    def __init__(self, filename_in, modelica_name):
         '''
         Constructor
         '''
         self.filename_in = filename_in
         self.modelica_name = modelica_name
+        self._convert()
 
         
-    def convert(self):
-        datcom = open(self.filename, 'r')
-        lines = datcom.readlines()
-        datcom.close()
+    def _convert(self):
+        with open(self.filename_in, 'r') as datcom:
+            lines = datcom.readlines()
 
         data = ['\tmodel DatcomTable\n\t\timport Modelica.Blocks.Tables.*;\n\t\tAircraftState state;\n\t\tAerodynamicCoefficients coef;\n']
         connect = ['\tequation\n']
@@ -60,19 +60,18 @@ class Convert(object):
                         else:
                             data.append(',\n')
                             
-        table = open(self.modelica_name + '.mo', 'w')
-        table.write('package ' + self.modelica_name + '\n')
-        for line in data:
-            table.write(line)
-        for line in connect:
-            table.write(line)
-        table.write('\tend DatcomTable;\n')
-        for line in aerocoef:
-            table.write(line)
-        table.write('\tend AerodynamicCoefficients;\n')
-        table.write('\trecord AircraftState\n\t\tReal p "roll rate [deg/s]";\n\t\tReal q "pitch rate [deg/s]";\n\t\tReal r "yaw rate [deg/s]";\n\t\tReal alpha;\n\t\tReal alphaDot;\n\tend AircraftState;\n')
-        table.write('end ' + self.modelica_name + ';')
-        table.close()
+        with open(self.modelica_name + '.mo', 'w') as table:
+            table.write('package ' + self.modelica_name + '\n')
+            for line in data:
+                table.write(line)
+            for line in connect:
+                table.write(line)
+            table.write('\tend DatcomTable;\n')
+            for line in aerocoef:
+                table.write(line)
+            table.write('\tend AerodynamicCoefficients;\n')
+            table.write('\trecord AircraftState\n\t\tReal p "roll rate [deg/s]";\n\t\tReal q "pitch rate [deg/s]";\n\t\tReal r "yaw rate [deg/s]";\n\t\tReal alpha;\n\t\tReal alphaDot;\n\tend AircraftState;\n')
+            table.write('end ' + self.modelica_name + ';')
 
 # vim:expandtab:ts=4:sw=4:
 
