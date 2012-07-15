@@ -5,12 +5,15 @@ Created on Jul 14, 2012
 '''
 import unittest
 
+from datcom2modelica import Convert
 
-class Test(unittest.TestCase):
 
+class TestConvert(unittest.TestCase):
 
-    def testName(self):
-        pass
+    infile = 'data/Citation.out'
+
+    def test_convert(self):
+        c = Convert(self.infile, "modelica_test")
 
 
 if __name__ == "__main__":
