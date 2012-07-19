@@ -15,14 +15,19 @@ class Convert(object):
     classdocs
     '''
 
-    def __init__(self, filename_in, filename_out):
+    def __init__(self, filename_in, filename_out, interface):
         '''
         Constructor
         '''
         self.filename_in = filename_in
         self.filename_out = filename_out
         self.modelica_name = os.path.splitext(os.path.basename(filename_out))[0]
+        self.names = []
+        self.coefs = []
         self._convert()
+        if interface:
+            self.interface = interface
+            self._generate_interface()
         
     def _convert(self):
         
@@ -35,8 +40,10 @@ class Convert(object):
                 start = lines[n].find('CASEID')+7
                 end = lines[n].find(':')
                 name = lines[n][start:end]
+                self.names.append(name)
             if lines[n].find('0 ALPHA')!=-1 or lines[n].find('0   ALPHA')!=-1:
                 coef = lines[n].split()
+                self.coefs.append(coef)
                 for k in range(1,len(coef)-1):
                     if data==[]:
                         data.append('\t\t'+coef[k+1]+'_'+name+'.tableOnFile=false,\n')
@@ -82,14 +89,20 @@ class Convert(object):
                             data.append('\n\t\t}')                            
                             break
                         else:
-                            data.append(',\n')
-
+                            data.append(',\n')            
+            
         with open(self.filename_out, 'w') as table:
             table.write('model DatcomTable_'+self.modelica_name+'\n\textends DatcomTable(\n')
             for line in data:
                 table.write(line)
             table.write(');\nend DatcomTable_'+self.modelica_name+';')
 
+    def _generate_interface(self):
+
+        with open(self.interface,'w') as table:
+            for i in xrange(len(self.names)):
+                table.write('%s : %s\n' % (self.names[i], self.coefs[i]) )
+            
     @classmethod
     def from_argv(cls,argv):
         '''
@@ -104,6 +117,8 @@ class Convert(object):
         parser.add_argument("-f", "--format",
                             choices=['table', 'model'], default='model',
                             help="Format to write (table not implemented)")
+        parser.add_argument("-i", "--interface",
+                           help="Generate the modelica interface")
         noise = parser.add_mutually_exclusive_group()
         noise.add_argument("-q", "--quiet", action="store_true",
                            help="Less output")
@@ -121,7 +136,7 @@ class Convert(object):
     
         logging.basicConfig(format="%(message)s", level=log_level)
 
-        return cls(args.infile, args.outfile)
+        return cls(args.infile, args.outfile,args.interface)
          
 if __name__ == '__main__':
     Convert.from_argv(sys.argv)

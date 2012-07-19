@@ -27,11 +27,12 @@ class TestConvert(unittest.TestCase):
             
             input_path=os.path.join(self.path, 'input', filename+'.out')
             output_path=os.path.join(self.path, 'output', filename+'.mo')
+            interface_path=os.path.join(self.path, 'output', 'DatcomTable'+'.mo')
             
                         
             print "checking file:", input_path
             
-            Convert.from_argv(['', input_path, output_path])
+            Convert.from_argv(['', input_path, output_path, '-i'+ interface_path])
             
             expected_path=os.path.join(self.path, 'expected', filename+'.mo')
             
