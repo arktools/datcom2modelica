@@ -1,9 +1,5 @@
-package Citation
-	model DatcomTable
-		import Modelica.Blocks.Tables.*;
-		AircraftState state;
-		AerodynamicCoefficients coef;
-,
+model DatcomTable_Citation
+	extends DatcomTable(
 		CD_FLAPS.tableOnFile=false,
 		CD_FLAPS.table=
 		{
@@ -1387,15 +1383,5 @@ package Citation
 			{21.00,	2.245E-03},
 			{22.00,	2.047E-03},
 			{24.00,	1.853E-03}
-		}	equation
-	end DatcomTable;
-	record AerodynamicCoefficients
-	end AerodynamicCoefficients;
-	record AircraftState
-		Real p "roll rate [deg/s]";
-		Real q "pitch rate [deg/s]";
-		Real r "yaw rate [deg/s]";
-		Real alpha;
-		Real alphaDot;
-	end AircraftState;
-end Citation;
+		});
+end DatcomTable_Citation;

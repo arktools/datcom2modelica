@@ -29,9 +29,7 @@ class Convert(object):
         with open(self.filename_in, 'r') as datcom:
             lines = datcom.readlines()
 
-        data = ['\tmodel DatcomTable\n\t\timport Modelica.Blocks.Tables.*;\n\t\tAircraftState state;\n\t\tAerodynamicCoefficients coef;\n']
-        connect = ['\tequation\n']
-        aerocoef = ['\trecord AerodynamicCoefficients\n']
+        data = []
         for n in range(len(lines)):
             if lines[n].find('CASEID')!=-1:
                 start = lines[n].find('CASEID')+7
@@ -72,7 +70,7 @@ class Convert(object):
                             if lines[a].split()[0][0]=='.':
                                 data.append('\t\t\t{0'+lines[a].split()[0]+',\t'+lines[a].split()[k]+'}')
                             else:
-                               data.append('\t\t\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k]+'}')
+                                data.append('\t\t\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k]+'}')
         ##                if k == 9 or k == 10:
         ##                    data.append('\t{'+lines[a].split()[0]+',\t'+lines[n+2].split()[k]+'}')
         ##                elif k == 11:
@@ -81,24 +79,16 @@ class Convert(object):
         ##                    data.append('\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k-1]+'}')
                         a = a+1
                         if lines[a][0]=='0' or lines[a].split()[k]=='NA':
-                            data.append('\n\t\t}')
-                            
+                            data.append('\n\t\t}')                            
                             break
                         else:
                             data.append(',\n')
 
         with open(self.filename_out, 'w') as table:
-            table.write('package ' + self.modelica_name + '\n')
+            table.write('model DatcomTable_'+self.modelica_name+'\n\textends DatcomTable(\n')
             for line in data:
                 table.write(line)
-            for line in connect:
-                table.write(line)
-            table.write('\tend DatcomTable;\n')
-            for line in aerocoef:
-                table.write(line)
-            table.write('\tend AerodynamicCoefficients;\n')
-            table.write('\trecord AircraftState\n\t\tReal p "roll rate [deg/s]";\n\t\tReal q "pitch rate [deg/s]";\n\t\tReal r "yaw rate [deg/s]";\n\t\tReal alpha;\n\t\tReal alphaDot;\n\tend AircraftState;\n')
-            table.write('end ' + self.modelica_name + ';')
+            table.write(');\nend DatcomTable_'+self.modelica_name+';')
 
     @classmethod
     def from_argv(cls,argv):
