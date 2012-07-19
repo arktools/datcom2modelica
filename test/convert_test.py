@@ -6,26 +6,44 @@
 # For details, see license.txt
 
 import unittest
+import os
 
 from datcom2modelica import Convert
 
 
 class TestConvert(unittest.TestCase):
 
-    infile = 'test/data/Citation.out'
+    def setUp(self):
+        self.path = os.path.abspath(os.path.dirname(__file__))
+        print self.path
 
     def test_convert(self):
-        # XXX this test should be alphabetically first XXX
-        Convert(self.infile, "test/data/modelica_test")
 
-    def test_integrity(self):
-        # XXX this test will fail if it's alphabetically before convert XXX
-        expected = open("test/data/modelica_expected.mo", 'rb').readlines()
-        test = open("test/data/modelica_test.mo", 'rb').readlines()
-        for e_line, t_line in zip(expected, test):
-            self.assertEqual(e_line, t_line)
-
+        filenames=['Citation']
+        
+        print "current directory: ", os.path.abspath(os.path.curdir)
+        
+        for filename in filenames:
+            
+            input_path=os.path.join(self.path, 'input', filename+'.out')
+            output_path=os.path.join(self.path, 'output', filename+'.mo')
+            
+                        
+            print "checking file:", input_path
+            
+            Convert.from_argv(['', input_path, output_path])
+            
+            expected_path=os.path.join(self.path, 'expected', filename+'.mo')
+            
+            with open(output_path, 'rb') as output_file:
+                output = output_file.readlines()
+                
+            with open(expected_path, 'rb') as expected_file:
+                expected = expected_file.readlines()
+                
+            for i in xrange(len(expected)):
+                if output[i] != expected[i]:
+                    raise Exception(output_path+": line " +str(i+1) +" does not match " + expected_path)
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
