@@ -27,7 +27,7 @@ class TestConvert(unittest.TestCase):
             
             input_path=os.path.join(self.path, 'input', filename+'.out')
             output_path=os.path.join(self.path, 'output', filename+'.mo')
-            interface_path=os.path.join(self.path, 'output', 'DatcomTable'+'.mo')
+            interface_path=os.path.join(self.path, 'output')
             
                         
             print "checking file:", input_path

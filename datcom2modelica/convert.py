@@ -22,8 +22,7 @@ class Convert(object):
         self.filename_in = filename_in
         self.filename_out = filename_out
         self.modelica_name = os.path.splitext(os.path.basename(filename_out))[0]
-        self.names = []
-        self.coefs = []
+        self.coefname = []
         self._convert()
         if interface:
             self.interface = interface
@@ -40,68 +39,61 @@ class Convert(object):
                 start = lines[n].find('CASEID')+7
                 end = lines[n].find(':')
                 name = lines[n][start:end]
-                self.names.append(name)
             if lines[n].find('0 ALPHA')!=-1 or lines[n].find('0   ALPHA')!=-1:
                 coef = lines[n].split()
-                self.coefs.append(coef)
+                for c in range(2,len(coef)):
+                    coef[c] = coef[c]+'_'+name
+                self.coefname.append(coef)
                 for k in range(1,len(coef)-1):
                     if data==[]:
-                        data.append('\t\t'+coef[k+1]+'_'+name+'.tableOnFile=false,\n')
+                        data.append('    %s.tableOnFile=false,\n' % coef[k+1])
                     else:
-                        data.append(',\n\t\t'+coef[k+1]+'_'+name+'.tableOnFile=false,\n')
-                    data.append('\t\t'+coef[k+1]+'_'+name+'.table=\n\t\t{\n')
+                        data.append(',\n    %s.tableOnFile=false,\n' % coef[k+1])
+                    data.append('    '+coef[k+1]+'.table=\n    {\n')
                     a = n+2
-        ##            data.append('\n\t{'+lines[a-1].split()[0]+',\t\t'+lines[a-1].split()[k]+'},\n')
                     pos = lines[a].find(lines[a].split()[k])
-                    while lines[a][0]!='0':
-                        if lines[a].split()[0][0]=='.':
-                            lines[a].split()[0] = lines[a].split()[0].replace('.','0.')
+                    while lines[a][0]!='0': # while not end of table
+                        data.append('      {%7.3f' % float(lines[a].split()[0])) # write beginning of row
+                        # handle columns correctly
                         if lines[a][pos:(pos+len(lines[n+2].split()[k]))]==' '*len(lines[n+2].split()[k]):
-                            lines[a]=lines[a].replace(' '*(len(lines[n+2].split()[k])+4),'\t'+lines[n+2].split()[k],1)
-                        if lines[a].split()[k]=='NDM':
-                            if lines[a].split()[0][0]=='.':
-                                data.append('\t\t\t{0'+lines[a].split()[0]+',\t0.000}')
-                            else:
-                                data.append('\t\t\t{'+lines[a].split()[0]+',\t0.000}')
-                        elif lines[a].split()[k][0] == '.':
-                            if lines[a].split()[0][0]=='.':
-                                data.append('\t\t\t{0'+lines[a].split()[0]+',\t0'+lines[a].split()[k]+'}')
-                            else:
-                                data.append('\t\t\t{'+lines[a].split()[0]+',\t0'+lines[a].split()[k]+'}')
-                        elif lines[a].split()[k][0] == '-' and lines[a].split()[k][1] == '.':
-                            if lines[a].split()[0][0]=='.':
-                                data.append('\t\t\t{0'+lines[a].split()[0]+',\t-0'+lines[a].split()[k][1:len(lines[a].split()[k])-1]+'}')
-                            else:
-                                data.append('\t\t\t{'+lines[a].split()[0]+',\t-0'+lines[a].split()[k][1:len(lines[a].split()[k])-1]+'}')
+                            lines[a]=lines[a].replace(' '*(len(lines[n+2].split()[k])+4),'  '+lines[n+2].split()[k],1)
+                        # write within row
+                        if lines[a].split()[k]=='NDM': # write zero for NDM
+                            data.append(', %7.3f}' % 0)
                         else:
-                            if lines[a].split()[0][0]=='.':
-                                data.append('\t\t\t{0'+lines[a].split()[0]+',\t'+lines[a].split()[k]+'}')
-                            else:
-                                data.append('\t\t\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k]+'}')
-        ##                if k == 9 or k == 10:
-        ##                    data.append('\t{'+lines[a].split()[0]+',\t'+lines[n+2].split()[k]+'}')
-        ##                elif k == 11:
-        ##                    data.append('\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k-2]+'}')
-        ##                else:
-        ##                    data.append('\t{'+lines[a].split()[0]+',\t'+lines[a].split()[k-1]+'}')
+                            data.append(', %7.3f}' % float(lines[a].split()[k]))
                         a = a+1
-                        if lines[a][0]=='0' or lines[a].split()[k]=='NA':
-                            data.append('\n\t\t}')                            
+                        if lines[a][0]=='0' or lines[a].split()[k]=='NA': # end of table
+                            data.append('\n    }')                            
                             break
                         else:
                             data.append(',\n')            
             
         with open(self.filename_out, 'w') as table:
-            table.write('model DatcomTable_'+self.modelica_name+'\n\textends DatcomTable(\n')
+            table.write('model DatcomTable_'+self.modelica_name+'\n  extends DatcomTable(\n')
             for line in data:
                 table.write(line)
             table.write(');\nend DatcomTable_'+self.modelica_name+';')
 
     def _generate_interface(self):
+        datcom_table_file = os.path.join(self.interface,'DatcomTable.mo')
+        aero_connector_file = os.path.join(self.interface,'AeroConnector.mo')
+        
+        with open(datcom_table_file,'w') as table:
+            table.write('model DatcomTable\n  import Modelica.Blocks.Tables.*;\n  input AircraftState state;\n  output AeroConnector coef;\n  parameter Boolean tableOnFile = false;\n')
+            for i in xrange(len(self.coefname)):
+                for k in xrange(len(self.coefname[i])-2):
+                    table.write('  CombiTable1D '+self.coefname[i][k+2]+';\n')
+            table.write('equation\n')
+            for i in xrange(len(self.coefname)):
+                for k in xrange(len(self.coefname[i])-2):
+                    table.write('  connect('+self.coefname[i][k+2]+'.u[1],state.alpha);\n')
+                    table.write('  connect('+self.coefname[i][k+2]+'.y[1],coef.'+self.coefname[i][k+2]+');\n')
+            table.write('end DatcomTable;')
+            
+        with open(aero_connector_file,'w') as connector:
+            connector.write("test")
 
-        with open(self.interface,'w') as table:
-            for i in xrange(len(self.names)):
-                table.write('%s : %s\n' % (self.names[i], self.coefs[i]) )
             
     @classmethod
     def from_argv(cls,argv):
@@ -118,7 +110,7 @@ class Convert(object):
                             choices=['table', 'model'], default='model',
                             help="Format to write (table not implemented)")
         parser.add_argument("-i", "--interface",
-                           help="Generate the modelica interface")
+                           help="Generate the modelica interface (takes directory to write to)")
         noise = parser.add_mutually_exclusive_group()
         noise.add_argument("-q", "--quiet", action="store_true",
                            help="Less output")
