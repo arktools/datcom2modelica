@@ -1,6 +1,0 @@
-FLAPS : ['0', 'ALPHA', 'CD', 'CL', 'CM', 'CN', 'CA', 'XCP', 'CLA', 'CMA', 'CYB', 'CNB', 'CLB']
-AILERONS : ['0', 'ALPHA', 'CLQ', 'CMQ', 'CLAD', 'CMAD', 'CLP', 'CYP', 'CNP', 'CNR', 'CLR']
-TOTAL : ['0', 'ALPHA', 'CD', 'CL', 'CM', 'CN', 'CA', 'XCP', 'CLA', 'CMA', 'CYB', 'CNB', 'CLB']
-FLAPS : ['0', 'ALPHA', 'CLQ', 'CMQ', 'CLAD', 'CMAD', 'CLP', 'CYP', 'CNP', 'CNR', 'CLR']
-AILERONS : ['0', 'ALPHA', 'CD', 'CL', 'CM', 'CN', 'CA', 'XCP', 'CLA', 'CMA', 'CYB', 'CNB', 'CLB']
-TOTAL : ['0', 'ALPHA', 'CLQ', 'CMQ', 'CLAD', 'CMAD', 'CLP', 'CYP', 'CNP', 'CNR', 'CLR']
