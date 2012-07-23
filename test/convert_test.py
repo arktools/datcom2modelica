@@ -19,7 +19,7 @@ class TestConvert(unittest.TestCase):
 
     def test_convert(self):
 
-        filenames=['Citation']
+        filenames=['B-737']
         
         print "current directory: ", os.path.abspath(os.path.curdir)
         
