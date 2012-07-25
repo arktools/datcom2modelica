@@ -1,3 +1,4 @@
 *.pyc
 build/
 test/data/modelica_test.mo
+*.egg-info

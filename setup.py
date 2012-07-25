@@ -25,7 +25,7 @@ setup(
     author_email='james.goppert@gmail.com',
     url='http://github.com/arktools/datcom2modelica',
     packages=find_packages(),
-    scripts=['scripts/convert.py'],
+    #scripts=[''],
     requires=requires,
     test_suite='test',
 )
